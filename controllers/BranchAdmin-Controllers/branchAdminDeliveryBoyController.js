@@ -6,13 +6,13 @@ const getAllDeliveryBoys = async (req, res) => {
         let { page = 1, limit = 10, search = "", sortOrder } = req.query;
         page = parseInt(page);
         limit = parseInt(limit);
- 
+
         // Determine sorting order (default to no sorting if sortOrder is not provided)
         let sortOption = {};
         if (sortOrder === "asc" || sortOrder === "desc") {
             sortOption.fullName = sortOrder === "desc" ? -1 : 1;
         }
- 
+
         // Create a search filter
         const searchFilter = {
             $or: [
@@ -21,19 +21,20 @@ const getAllDeliveryBoys = async (req, res) => {
                 { userId: { $regex: search, $options: "i" } },
             ],
         };
- 
+
         const totalDeliveryBoys = await DeliveryBoyModel.countDocuments(
             searchFilter
         );
         const deliveryBoys = await DeliveryBoyModel.find(searchFilter)
+            .select("image fullName phoneNumber userId")
             .sort(sortOption) // Apply sorting only if provided
             .skip((page - 1) * limit)
             .limit(limit);
- 
+
         const totalPages = Math.ceil(totalDeliveryBoys / limit);
         const hasPrevious = page > 1;
         const hasNext = page < totalPages;
- 
+
         res.status(200).json({
             success: true,
             totalDeliveryBoys,
@@ -45,8 +46,8 @@ const getAllDeliveryBoys = async (req, res) => {
         });
     } catch (error) {
         console.error(error);
-        return res.status(500).json({ success: false, message: error.message });
-    }
+        return res.status(500).json({ success: false, message: error.message });
+    }
 };
  
 const getDeliveryBoyById = async (req, res) => {

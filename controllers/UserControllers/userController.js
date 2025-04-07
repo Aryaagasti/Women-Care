@@ -161,8 +161,19 @@ const updateUser = async (req, res) => {
         res.status(500).json({ success: false, message: error.message });
     }
 };
+
+//logout
+const logout = async (req, res) => {
+    try {
+      res.clearCookie("token");
+      res.status(200).json({ message: "Logout successful", success: true });
+    } catch (error) {
+      console.error("Server Error:", error);
+      res.status(500).json({ message: "Server error", success: false, error: error.message });
+    }
+  };
  
-module.exports = { login, verifyOtp, resendOtp, getUser, updateUser };
+module.exports = { login, verifyOtp, resendOtp, getUser, updateUser, logout };
  
  
  
