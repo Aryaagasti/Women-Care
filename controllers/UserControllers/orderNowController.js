@@ -1,4 +1,4 @@
-const Order =  require("../../models/UserModels/BuyNow");
+const Order =  require("../../models/UserModels/orderNow");
 
 //Confirm Order
 const confirmOrder = async (req, res) => {

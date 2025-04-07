@@ -1,7 +1,7 @@
 const express = require("express");
 const router = express.Router();
 const { userValidateToken } = require("../../middlewares/userAuthMiddleware");
-const { getOrderById, confirmOrder, deliveredOrder, getUserOrders, getOrderDetails, cancelOrder, ongoingOrder } = require("../../controllers/UserControllers/OrderController");
+const { getOrderById, confirmOrder, deliveredOrder, getUserOrders, getOrderDetails, cancelOrder, ongoingOrder } = require("../../controllers/UserControllers/orderNowController");
 
 
 

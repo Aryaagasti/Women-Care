@@ -10,6 +10,7 @@ const adminRoute = require("./routes/SuperAdmin-Routes/Super-AdminRoutes");
 const branchRoute = require("./routes/SuperAdmin-Routes/branchRoutes");
 const deliveryBoyRoute = require("./routes/SuperAdmin-Routes/deliveryRoutes");
 const bannerRoute = require("./routes/SuperAdmin-Routes/bannerRoutes");
+const dashboardRoutes = require("./routes/SuperAdmin-Routes/dashboardRoutes");
 const productRoute = require("./routes/SuperAdmin-Routes/productRoutes");
 const testimonialRoute = require("./routes/SuperAdmin-Routes/testimonialRoutes");
 const settingsRoute = require("./routes/SuperAdmin-Routes/SettingRoutes");
@@ -58,12 +59,12 @@ app.use("/api/testimonial", testimonialRoute);
 app.use("/api/customer", customerRoute);
 app.use("/api/superAdminPayment",PaymentRoute);
 app.use("/api/settings",settingsRoute);
+app.use("/api/dashboard",dashboardRoutes);
 
 //Branch Admin Routes
 app.use("/api/branchAdmin", branchAdminRoute);
 app.use("/api/branchAdminProduct", branchAdminProductRoute);
 app.use("/api/branchAdminDeliveryBoy", branchAdminDeliveryBoyRoute);
-app.use("/api/settings", settingsRoute);
 app.use("/api/branchAdminPayment", branchAdminPaymentRoute);
 app.use("/api/branchSettings", branchSettingsRoutes);
 
