@@ -56,7 +56,7 @@ app.use("/api/banner", bannerRoute);
 app.use("/api/products", productRoute);
 app.use("/api/testimonial", testimonialRoute);
 app.use("/api/customer", customerRoute);
-app.use("/api/payments",PaymentRoute);
+app.use("/api/superAdminPayment",PaymentRoute);
 app.use("/api/settings",settingsRoute);
 
 //Branch Admin Routes

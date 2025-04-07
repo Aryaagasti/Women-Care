@@ -11,25 +11,38 @@ const paymentHistorySchema = new mongoose.Schema(
       type: Date,
       required: true,
     },
-    branch: {
+    deliveryBoy: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: "Branch", // Reference to Branch model
+      ref: "DeliveryBoy", // Reference to Delivery Boy
       required: true,
     },
-    amountPaid: {
+    user: { // Renamed from "customer"
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User", // Reference to User
+      required: true,
+    },
+    productName: {
+      type: String,
+      required: true,
+    },
+    totalAmount: {
       type: Number,
       required: true,
+    },
+    paymentMode: {
+      type: String,
+      required: true,
+      enum: [ "Online", "COD"], // Dropdown payment modes
     },
     status: {
       type: String,
       required: true,
-      enum: ["Approved", "Rejected","NA"], // Possible statuses
+      enum: ["Paid", "Not Paid"], // Payment status options
     },
     action: {
-      type:String,
-      enum:["Approved","Rejected"]
-    }
-
+      type: String,
+      enum: ["View"], // Actions like "eye button" for viewing details
+    },
   },
   { timestamps: true }
 );

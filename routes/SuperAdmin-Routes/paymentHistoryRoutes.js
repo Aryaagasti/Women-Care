@@ -1,12 +1,13 @@
 const express = require("express");
-const {getPaymentHistory, addPaymentHistroy,updatePaymentAction} =  require("../../controllers/SuperAdmin-Controllers/paymentHistoryController")
+const {getPaymentHistory,viewPaymentHistory, createPayment, getPaymentModes} =  require("../../controllers/SuperAdmin-Controllers/paymentHistoryController")
 
 const router = express.Router();
 
 //payment routes
-router.post("/add-payment-history", addPaymentHistroy);
-router.get("/get-payment-history", getPaymentHistory);
-router.put("/update-payment-action/:id", updatePaymentAction);
 
+router.post("/create-payment", createPayment); // Create a new payment record
+router.get("/get-payment-history", getPaymentHistory);
+router.get("/view-payment-history/:deliveryBoyId", viewPaymentHistory);
+router.get("/get-payment-modes", getPaymentModes);
 
 module.exports = router;

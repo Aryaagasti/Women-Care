@@ -1,7 +1,7 @@
 const mongoose = require("mongoose");
 
 const branchAdminPaymentHistorySchema = new mongoose.Schema(
-  {
+{
     slNo: {
       type: Number,
       required: true,
@@ -11,38 +11,38 @@ const branchAdminPaymentHistorySchema = new mongoose.Schema(
       type: Date,
       required: true,
     },
-    branchAdmin: {
+    deliveryBoy: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: "BranchAdmin", // Reference to the Branch Admin
+      ref: "DeliveryBoy", // Reference to Delivery Boy
       required: true,
     },
-    amountPaid: {
-      type: Number,
+    user: { // Renamed from "customer"
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User", // Reference to User
+      required: true,
+    },
+    productName: {
+      type: String,
       required: true,
     },
     totalAmount: {
       type: Number,
       required: true,
     },
-    pendingAmount: {
-      type: Number,
-      required: true,
-    },
     paymentMode: {
       type: String,
       required: true,
-      enum: ["Cash", "Online"], // Dropdown payment modes
+      enum: [ "Online", "COD"], // Dropdown payment modes
     },
     status: {
       type: String,
       required: true,
-      enum: ["Paid", "Unpaid"], // Status options
+      enum: ["Paid", "Not Paid"], // Payment status options
     },
-    deliveryBoy: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "DeliveryBoy", // Reference to the Delivery Boy
-      required: true,
-    }
+    action: {
+      type: String,
+      enum: ["View"], // Actions like "eye button" for viewing details
+    },
   },
   { timestamps: true }
 );
