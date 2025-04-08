@@ -1,5 +1,5 @@
 const { Schema, model } = require("mongoose");
- 
+const mongoose = require('mongoose');
 const deliveryBoySchema = new Schema(
     {
         fullName: {
@@ -49,6 +49,11 @@ const deliveryBoySchema = new Schema(
             required: [true, "Branch is required"],
             trim: true,
         },
+        branchInfo: {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: "Branches",
+            required: false
+          },
         image: {
             type: String,
             trim: true,

@@ -71,7 +71,6 @@ app.use("/api/branchSettings", branchSettingsRoutes);
 //User Routes
 app.use("/api/user", userRoute);
 app.use("/api/userReview", userReviewRoute);
-app.use("/api/userProduct", userProductRoutes);
 app.use("/api/order", orderRoutes);
 app.use("/api/userProduct", userProductRoutes);
 app.use("/api/cart", cartRoutes);

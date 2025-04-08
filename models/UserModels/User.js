@@ -1,5 +1,5 @@
 const { Schema, model } = require("mongoose");
- 
+const mongoose = require('mongoose');
 const userSchema = new Schema(
     {
         phoneNumber: {
@@ -19,6 +19,11 @@ const userSchema = new Schema(
             type: String,
             enum: ["Male", "Female", "Others"],
         },
+        branchInfo: {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: "Branches",
+            required: false
+          },
         email: {
             type: String,
             default: "",
