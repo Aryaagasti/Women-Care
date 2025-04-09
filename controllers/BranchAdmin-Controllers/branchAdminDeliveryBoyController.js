@@ -52,27 +52,85 @@ const getAllDeliveryBoys = async (req, res) => {
  
 const getDeliveryBoyById = async (req, res) => {
     try {
-        const { id } = req.params;
+      const { id } = req.params;
+  
+      // Step 1: Validate MongoDB ObjectId
+      if (!mongoose.Types.ObjectId.isValid(id)) {
+        return res.status(400).json({
+          success: false,
+          message: "Invalid delivery boy ID.",
+        });
+      }
+  
+      // Step 2: Fetch Delivery Boy Details
+      const deliveryBoy = await DeliveryBoyModel.findById(id).select(
+        "image fullName gender address phoneNumber email"
+      );
+  
+      if (!deliveryBoy) {
+        return res.status(404).json({
+          success: false,
+          message: "Delivery boy not found.",
+        });
+      }
  
-        if (!mongoose.Types.ObjectId.isValid(id)) {
-            return res
-                .status(400)
-                .json({ success: false, message: "Invalid delivery boy ID." });
-        }
- 
-        const deliveryBoy = await DeliveryBoyModel.findById(id);
- 
-        if (!deliveryBoy) {
-            return res
-                .status(404)
-                .json({ success: false, message: "Delivery boy not found." });
-        }
- 
-        res.status(200).json({ success: true, deliveryBoy });
+  
+     
+      const previousOrder = await Order.find({ 
+        deliveryBoy: id,
+        status: "Delivered",
+       })
+        .sort({ createdAt: -1 })
+        .limit(3)
+        .populate({
+          path: "items.product",
+          model: "Products",
+          select: "productName",
+        });
+  
+      // Step 4: Format Order Details
+      const formattedOrders = [];
+  
+      previousOrder.forEach((order) => {
+        const orderDate = new Date(order.orderDate).toLocaleDateString("en-IN");
+  
+        const deliveryAddress = [
+          order.deliveryAddress?.name,
+          order.deliveryAddress?.street,
+          order.deliveryAddress?.city,
+          order.deliveryAddress?.zipCode,
+        ]
+          .filter(Boolean)
+          .join(", ");
+  
+        order.items.forEach((item) => {
+          formattedOrders.push({
+            id: order._id,
+            Date: orderDate,
+            productName: item.product?.productName || "Unknown Product",
+            quantity: item.quantity,
+            price: item.price,
+            totalPrice: item.quantity * item.price,
+            status: order.status,
+            deliveryAddress,
+          });
+        });
+      });
+  
+   
+      return res.status(200).json({
+        success: true,
+        deliveryBoy,
+        previousDeliveryDetails: formattedOrders,
+      });
     } catch (error) {
-        console.error(error);
-        return res.status(500).json({ success: false, message: error.message });
+      console.error("Error fetching delivery boy details:", error);
+      return res.status(500).json({
+        success: false,
+        message: "Internal Server Error",
+        error: error.message,
+      });
     }
-};
+  };
  
 module.exports = { getAllDeliveryBoys, getDeliveryBoyById };

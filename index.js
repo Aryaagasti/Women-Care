@@ -29,6 +29,7 @@ const branchAdminProductRoute = require("./routes/BranchAdmin-Routes/branchAdmin
 const branchAdminDeliveryBoyRoute = require("./routes/BranchAdmin-Routes/branch-adminDeliveryBoyRoutes");
 const branchAdminPaymentRoute = require("./routes/BranchAdmin-Routes/branchAdminPaymentRoutes");
 const branchSettingsRoutes = require("./routes/BranchAdmin-Routes/BranchAdminSetting");
+const branchAdminCustomerRoutes = require("./routes/BranchAdmin-Routes/branchAdminCustomerRoutes");
 
 //Importing All User Related Routes
 const userRoute = require("./routes/user-Routes/useRoutes");
@@ -38,6 +39,7 @@ const cartRoutes = require("./routes/user-Routes/userCartRoutes");
 const orderRoutes = require("./routes/user-Routes/OrdersRoutes");
 const contactUsRoutes = require("./routes/user-Routes/userContactUsRoutes");
 const userSettingsRoutes = require("./routes/user-Routes/userSettingsRoutes");
+const trackingOrderRoutes =  require("./routes/user-Routes/userTrackOrderRoutes")
 
 const app = express();
 
@@ -67,6 +69,7 @@ app.use("/api/branchAdminProduct", branchAdminProductRoute);
 app.use("/api/branchAdminDeliveryBoy", branchAdminDeliveryBoyRoute);
 app.use("/api/branchAdminPayment", branchAdminPaymentRoute);
 app.use("/api/branchSettings", branchSettingsRoutes);
+app.use("/api/branchAdminCustomer", branchAdminCustomerRoutes);
 
 //User Routes
 app.use("/api/user", userRoute);
@@ -76,7 +79,6 @@ app.use("/api/userProduct", userProductRoutes);
 app.use("/api/cart", cartRoutes);
 app.use("/api/contactUs", contactUsRoutes);
 app.use("/api/userSettings", userSettingsRoutes);
-
 
 
 const PORT = process.env.PORT || 5000;
