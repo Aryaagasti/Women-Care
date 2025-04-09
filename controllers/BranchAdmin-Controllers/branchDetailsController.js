@@ -33,4 +33,4 @@ const getBranchDetails = async (req, res) => {
     }
 };
 
-module.exports = { getBranchDetails };
+module.exports = { getBranchDetails };

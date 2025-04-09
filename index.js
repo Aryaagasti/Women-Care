@@ -30,6 +30,7 @@ const branchAdminDeliveryBoyRoute = require("./routes/BranchAdmin-Routes/branch-
 const branchAdminPaymentRoute = require("./routes/BranchAdmin-Routes/branchAdminPaymentRoutes");
 const branchSettingsRoutes = require("./routes/BranchAdmin-Routes/BranchAdminSetting");
 const branchAdminCustomerRoutes = require("./routes/BranchAdmin-Routes/branchAdminCustomerRoutes");
+const branchDetailsRoutes = require("./routes/BranchAdmin-Routes/branchDetailsRoutes");
 
 //Importing All User Related Routes
 const userRoute = require("./routes/user-Routes/useRoutes");
@@ -70,6 +71,7 @@ app.use("/api/branchAdminDeliveryBoy", branchAdminDeliveryBoyRoute);
 app.use("/api/branchAdminPayment", branchAdminPaymentRoute);
 app.use("/api/branchSettings", branchSettingsRoutes);
 app.use("/api/branchAdminCustomer", branchAdminCustomerRoutes);
+app.use("/api/branchAdmin", branchDetailsRoutes);
 
 //User Routes
 app.use("/api/user", userRoute);
@@ -79,7 +81,7 @@ app.use("/api/userProduct", userProductRoutes);
 app.use("/api/cart", cartRoutes);
 app.use("/api/contactUs", contactUsRoutes);
 app.use("/api/userSettings", userSettingsRoutes);
-
+app.use("/api/trackingOrder",trackingOrderRoutes)
 
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
