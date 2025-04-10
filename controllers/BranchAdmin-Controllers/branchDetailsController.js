@@ -24,7 +24,7 @@ const getBranchDetails = async (req, res) => {
                 Password: branch.password,
                 PhoneNumber: branch.phoneNumber,
                 Address: branch.fullAddress,
-                ServicePinCode: branch.servicePinCode,
+                ServicePinCode: branch.servicePinCode.join(", ")
             }
         });
     } catch (error) {
