@@ -58,16 +58,16 @@ const createBranch = async (req, res) => {
 const getAllBranches = async (req, res) => {
   try {
     let { page, limit, searchQuery, sortBy, sortOrder } = req.query;
- 
+
     // Default values
     page = parseInt(page) || 1;
     limit = parseInt(limit) || 10;
     const skip = (page - 1) * limit;
- 
+
     // Sort
     sortBy = sortBy || "branchName";
     sortOrder = sortOrder === "desc" ? -1 : 1;
- 
+
     // Search filter
     let query = {};
     if (searchQuery) {
@@ -79,7 +79,7 @@ const getAllBranches = async (req, res) => {
         ],
       };
     }
- 
+
     // Fetch branches
     const rawBranches = await branchModel
       .find(query)
@@ -87,7 +87,7 @@ const getAllBranches = async (req, res) => {
       .sort({ [sortBy]: sortOrder })
       .skip(skip)
       .limit(limit);
- 
+
     // Format servicePinCode as comma-separated string
     const branches = rawBranches.map(branch => ({
       branchName: branch.branchName,
@@ -96,13 +96,13 @@ const getAllBranches = async (req, res) => {
         ? branch.servicePinCode.join(', ')
         : branch.servicePinCode,
     }));
- 
+
     // Pagination
     const totalBranches = await branchModel.countDocuments(query);
     const totalPages = Math.ceil(totalBranches / limit);
     const hasPrevious = page > 1;
     const hasNext = page < totalPages;
- 
+
     return res.status(200).json({
       totalBranches,
       totalPages,
@@ -117,8 +117,8 @@ const getAllBranches = async (req, res) => {
       message: "Internal Server Error",
       success: false,
       error: error.message
-    });
-  }
+    });
+  }
 };
 
 //get Branch by id
