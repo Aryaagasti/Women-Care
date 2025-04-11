@@ -31,6 +31,7 @@ const branchAdminPaymentRoute = require("./routes/BranchAdmin-Routes/branchAdmin
 const branchSettingsRoutes = require("./routes/BranchAdmin-Routes/BranchAdminSetting");
 const branchAdminCustomerRoutes = require("./routes/BranchAdmin-Routes/branchAdminCustomerRoutes");
 const branchDetailsRoutes = require("./routes/BranchAdmin-Routes/branchDetailsRoutes");
+const branchOrderRoutes = require("./routes/BranchAdmin-Routes/branchAdminOrderRoutes");
 
 //Importing All User Related Routes
 const userRoute = require("./routes/user-Routes/useRoutes");
@@ -72,6 +73,7 @@ app.use("/api/branchAdminPayment", branchAdminPaymentRoute);
 app.use("/api/branchSettings", branchSettingsRoutes);
 app.use("/api/branchAdminCustomer", branchAdminCustomerRoutes);
 app.use("/api/branchAdmin", branchDetailsRoutes);
+app.use("/api/branchOrder", branchOrderRoutes);
 
 //User Routes
 app.use("/api/user", userRoute);
