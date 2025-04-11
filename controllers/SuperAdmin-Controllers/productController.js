@@ -13,24 +13,26 @@ const createProduct = async (req, res) => {
             quantityInEachPack,
             availableProductQuantity,
         } = req.body;
- 
+
         let imagePaths = [];
         if (req.files && req.files.length > 0) {
             imagePaths = req.files.map((file) => file.path);
         }
- 
-        // Find the last product by sorting in descending order
-        const lastProduct = await ProductModel.findOne().sort({ productCode: -1 });
- 
-        let newProductCode;
-        if (!lastProduct) {
-            newProductCode = "PR0001"; // First product if no existing product
-        } else {
-            // Extract the numeric part and increment
-            const lastCodeNumber = parseInt(lastProduct.productCode.substring(2), 10);
-            newProductCode = `PR${String(lastCodeNumber + 1).padStart(4, "0")}`;
+
+        // Get last product with valid productCode
+        const lastProduct = await ProductModel.findOne({ productCode: { $regex: /^PR\d+$/ } }).sort({ productCode: -1 });
+
+        let newProductCode = "PR0001"; // Default for first product
+
+        if (lastProduct && typeof lastProduct.productCode === "string") {
+            const numberPart = lastProduct.productCode.replace(/[^\d]/g, "");
+            if (!isNaN(numberPart)) {
+                newProductCode = `PR${String(parseInt(numberPart, 10) + 1).padStart(4, "0")}`;
+
+
+            }
         }
- 
+
         const newProduct = new ProductModel({
             productCode: newProductCode,
             brand,
@@ -43,9 +45,9 @@ const createProduct = async (req, res) => {
             image: imagePaths,
             availableProductQuantity,
         });
- 
+
         await newProduct.save();
- 
+
         return res.status(201).json({
             success: true,
             message: "Product created successfully",
@@ -56,8 +58,8 @@ const createProduct = async (req, res) => {
         return res.status(500).json({
             success: false,
             message: "Internal Server Error",
-        });
-    }
+        });
+    }
 };
  
 //Get All Products
