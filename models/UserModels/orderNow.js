@@ -8,7 +8,7 @@ const statusEnum = [
   "Order Confirmed",
   "Packed the Product",
   "Arrived in the Warehouse",
-  "Ready by Courier Facility",
+  "Nearby Courier Facility",
   "Out for Delivery",
 ];
 const mongoose = require("mongoose");
@@ -58,8 +58,27 @@ const orderSchema = new mongoose.Schema(
     status: {
       type: String,
       enum: statusEnum,
-      default: "Order Placed",
+      enum:["Delivered", "In Process", "Cancelled","Confirmed"],
+      default: "In Process",
     },
+    cancelReason: {
+      type: String,
+      enum:[
+        "I want to change the Product",
+        "Not available on the delivery time",
+        "Price High",
+        "I ordered wrong Product",
+        "Other",
+      ]
+    },
+    otherReason: {
+      type: String,
+    },
+    orderId: {
+      type: String,
+      unique: true,
+      required: true
+    }, 
     orderDate: {
       type: Date,
       default: Date.now,
@@ -72,14 +91,9 @@ const orderSchema = new mongoose.Schema(
     branchInfo: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "Branches",
-      required: true,
     },
-    tracking: [
-      {
-        status: String,
-        date: { type: Date, default: Date.now }
-      }
-    ],
+ 
+   
     
   },
   { timestamps: true }

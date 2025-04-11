@@ -1,7 +1,6 @@
 const Cart = require("../../models/UserModels/CartModel")
-const Order = require("../../models/UserModels/orderNow");
 const Product = require('../../models/SuperAdminModels/Product');
- 
+const Order = require("../../models/UserModels/orderNow");
 //Add Item  To Cart
 const addToCart = async (req, res) => {
     try {
@@ -37,7 +36,7 @@ const addToCart = async (req, res) => {
  
         await cart.save();
     return res.status(200).json({ success: true, message: "Item added to cart", cart });
- 
+
     } catch (error) {
         console.error("Error:", error);
         return res.status(500).json({ success: false, message: "Server Error", error: error.message });
@@ -143,107 +142,258 @@ const decrementCartItem = async (req, res) => {
   // Craete Order From Cart
   const BuyOrderFromCart = async (req, res) => {
     try {
-        const userId = req.user.id;
- 
-        const cart = await Cart.findOne({ userId }).populate('items.productId');
-        if (!cart || cart.items.length === 0) {
-            return res.status(400).json({ message: "Cart is empty. Add products first." });
+      const userId = req.user.id;
+   
+      const cart = await Cart.findOne({ userId }).populate('items.productId');
+      if (!cart || cart.items.length === 0) {
+        return res.status(400).json({ message: "Cart is empty. Add products first." });
+      }
+   
+      const { emergencyDelivery, deliveryAddress, paymentMethod, branchName } = req.body;
+      const emergency = emergencyDelivery === "true";
+   
+      let totalAmount = 0;
+      let orderItems = [];
+      let insufficientStockProducts = [];
+   
+      for (const item of cart.items) {
+        const product = item.productId;
+        if (!product) {
+          return res.status(400).json({ message: "One of the products in your cart is missing." });
         }
- 
-        let totalAmount = 0;
-        let orderItems = [];
-        let insufficientStockProducts = [];
-        
-        const emergencyDelivery = req.body.emergencyDelivery === "true";  
- 
-        for (const item of cart.items) {
-            const product = item.productId;
-            if (!product) {
-                return res.status(400).json({ message: "One of the products in your cart is missing." });
-            }
- 
-            if (product.stock < item.quantity) {
-                insufficientStockProducts.push(product.name);
-                continue;
-            }
- 
-            totalAmount += item.quantity * item.price;
-            orderItems.push({
-                product: product._id,
-                quantity: item.quantity,
-                price: item.price
-            });
- 
-            product.stock -= item.quantity;
-            await product.save();
+   
+        if (product.stock < item.quantity) {
+          insufficientStockProducts.push(product.productName || product.name);
+          continue;
         }
- 
-        if (insufficientStockProducts.length > 0) {
-            return res.status(400).json({
-                message: `Not enough stock for: ${insufficientStockProducts.join(", ")}`,
-            });
-        }
- 
-        if (emergencyDelivery) {
-            totalAmount += 20;
-        }
- 
-        const newOrder = new Order({
-            user: userId,
-            deliveryAddress: req.body.deliveryAddress,
-            paymentMethod: req.body.paymentMethod,
-            totalAmount: totalAmount,
-            items: orderItems,
-            emergencyDelivery: emergencyDelivery 
+   
+        totalAmount += item.quantity * item.price;
+        orderItems.push({
+          product: product._id,
+          quantity: item.quantity,
+          price: item.price
         });
- 
-        await newOrder.save();
-        await Cart.findOneAndDelete({ userId });
- 
-        return res.status(201).json({
-            message: "Order placed successfully",
-            order: newOrder,
-            emergencyDelivery: emergencyDelivery ? "₹20 Emergency Delivery Charges applied" : "No Emergency Delivery Charges"
+   
+        product.stock -= item.quantity;
+        await product.save();
+      }
+   
+      if (insufficientStockProducts.length > 0) {
+        return res.status(400).json({
+          message: `Not enough stock for: ${insufficientStockProducts.join(", ")}`,
         });
- 
+      }
+   
+      //Add emergency delivery charges
+      if (emergency) totalAmount += 40;
+   
+      let branchInfo = null;
+   
+      //Get branch info by branch name or address
+      if (branchName) {
+        const branch = await branchModel.findOne({ branchName });
+        if (branch) {
+          branchInfo = branch._id;
+        } else {
+          return res.status(404).json({
+            message: `Branch with name "${branchName}" not found.`,
+          });
+        }
+      } else {
+        const allBranches = await branchModel.find();
+        const matchedBranch = allBranches.find((branch) => {
+          const pins = Array.isArray(branch.servicePinCode)
+            ? branch.servicePinCode.map(code => code.toString())
+            : [branch.servicePinCode?.toString()];
+          return pins.some(pin => deliveryAddress.includes(pin)) ||
+                 deliveryAddress.includes(branch.fullAddress);
+        });
+   
+        if (matchedBranch) {
+          branchInfo = matchedBranch._id;
+        }
+      }
+      
+      //Generate unique order ID
+      const generateUniqueOrderId = async () => {
+        const prefix = "9B76HD545E";
+        let nextNumber = 1;
+   
+        const latestOrder = await Order.findOne({ orderId: { $regex: `^${prefix}` } })
+                                       .sort({ createdAt: -1 })
+                                       .lean();
+   
+        if (latestOrder) {
+          const lastId = latestOrder.orderId.replace(prefix, "");
+          const parsed = parseInt(lastId);
+          if (!isNaN(parsed)) {
+            nextNumber = parsed + 1;
+          }
+        }
+   
+        let newOrderId;
+        let exists = true;
+        while (exists) {
+          newOrderId = prefix + nextNumber.toString().padStart(4, '0');
+          const existingOrder = await Order.findOne({ orderId: newOrderId });
+          if (!existingOrder) {
+            exists = false;
+          } else {
+            nextNumber++; 
+          }
+        }
+   
+        return newOrderId;
+      };
+      const orderId = await generateUniqueOrderId();
+   
+      //Create new order
+      const newOrder = new Order({
+        user: userId,
+        orderId,
+        deliveryAddress,
+        paymentMethod,
+        totalAmount,
+        items: orderItems,
+        emergencyDelivery: emergency,
+        branchInfo
+      });
+   
+      await newOrder.save();
+   
+      cart.items = [];
+      cart.totalAmount = 0;
+      await cart.save();
+   
+      return res.status(201).json({
+        message: "Order placed successfully",
+        order: newOrder,
+        emergencyDelivery: emergency ? "₹40 Emergency Delivery Charges applied" : "No Emergency Delivery Charges"
+      });
+   
     } catch (error) {
-        console.error("Server Error:", error);
-        res.status(500).json({ message: "Server error", error: error.message });
+      console.error("Server Error:", error);
+      res.status(500).json({ message: "Server error", error: error.message });
     }
-};
- 
-  //Get order By Id
-  const getOrderById = async (req, res) => {
+  };
+  // Save for later
+  const saveForLater = async (req, res) => {
     try {
-        const { orderId } = req.params;
-        const userId = req.user.id; 
- 
-        const order = await Order.findOne({ _id: orderId, user: userId })
-            .populate("items.product", "name price imageUrl") 
-            .populate("user", "name email");
- 
-        if (!order) {
-            return res.status(404).json({ message: "Order not found." });
-        }
- 
-        return res.status(200).json({
-            message: "Order details retrieved successfully",
-            order
-        });
- 
-    } catch (error) {
-        console.error("Server Error:", error);
-        res.status(500).json({ message: "Server error", error: error.message });
-    }
-};
+      const userId = req.user.id;
+      const { productId } = req.params;
   
-
+      const cart = await Cart.findOne({ userId });
+  
+      if (!cart) {
+        return res.status(404).json({ success: false, message: "Cart not found" });
+      }
+  
+      const itemIndex = cart.items.findIndex(
+        (item) => item.productId.toString() === productId
+      );
+  
+      if (itemIndex === -1) {
+        return res.status(404).json({ success: false, message: "Item not found in cart" });
+      }
+  
+      const itemToSave = cart.items[itemIndex];
+  
+      cart.items.splice(itemIndex, 1);
+  
+      cart.savedForLater.push(itemToSave);
+  
+      cart.totalAmount = cart.items.reduce(
+        (sum, item) => sum + item.quantity * item.price,
+        0
+      );
+  
+      await cart.save();
+  
+      res.status(200).json({
+        success: true,
+        message: "Item moved to Save For Later",
+        cart
+      });
+  
+    } catch (error) {
+      res.status(500).json({ success: false, message: "Server Error", error: error.message });
+    }
+  };
+ 
+  // Move to cart
+const moveToCart = async (req, res) => {
+    try {
+      const userId = req.user.id;
+      const { productId } = req.params;
+  
+      const cart = await Cart.findOne({ userId });
+  
+      if (!cart) {
+        return res.status(404).json({
+          success: false,
+          message: "Cart not found",
+        });
+      }
+  
+      const savedItemIndex = cart.savedForLater.findIndex(
+        (item) => item.productId.toString() === productId
+      );
+  
+      if (savedItemIndex === -1) {
+        return res.status(404).json({
+          success: false,
+          message: "Item not found in saved for later",
+        });
+      }
+  
+      const savedItem = cart.savedForLater[savedItemIndex];
+  
+      const existingCartItem = cart.items.find(
+        (item) => item.productId.toString() === productId
+      );
+  
+      if (existingCartItem) {
+        existingCartItem.quantity += savedItem.quantity;
+      } else {
+        cart.items.push({
+          productId: savedItem.productId,
+          quantity: savedItem.quantity,
+          price: savedItem.price,
+        });
+      }
+  
+      cart.savedForLater.splice(savedItemIndex, 1);
+  
+      cart.totalAmount = cart.items.reduce(
+        (sum, item) => sum + item.quantity * item.price,
+        0
+      );
+  
+      await cart.save();
+  
+      return res.status(200).json({
+        success: true,
+        message: "Item moved to cart",
+        cart,
+      });
+    } catch (error) {
+      console.error("Move to cart error:", error);
+      return res.status(500).json({
+        success: false,
+        message: "Server error",
+        error: error.message,
+      });
+    }
+  };
+  
+ 
   module.exports = {
     addToCart,
     incrementCartItem,
     decrementCartItem,
     removeFromCart,
     BuyOrderFromCart,
-    getOrderById
+    saveForLater,
+    moveToCart,
   };
- 
+  
