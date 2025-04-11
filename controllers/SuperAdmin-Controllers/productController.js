@@ -1,9 +1,9 @@
 const ProductModel = require("../../models/SuperAdminModels/Product");
-
+const mongoose = require("mongoose");
+//Create Product
 const createProduct = async (req, res) => {
     try {
         const {
-            productCode,
             brand,
             productName,
             productSubType,
@@ -13,23 +13,26 @@ const createProduct = async (req, res) => {
             quantityInEachPack,
             availableProductQuantity,
         } = req.body;
-
+ 
         let imagePaths = [];
         if (req.files && req.files.length > 0) {
             imagePaths = req.files.map((file) => file.path);
         }
-
-        const product = await ProductModel.findOne({ productCode });
-        if (product) {
-            console.log(product);
-            return res.status(400).json({
-                success: false,
-                message: "Product is already exists with this product code.",
-            });
+ 
+        // Find the last product by sorting in descending order
+        const lastProduct = await ProductModel.findOne().sort({ productCode: -1 });
+ 
+        let newProductCode;
+        if (!lastProduct) {
+            newProductCode = "PR0001"; // First product if no existing product
+        } else {
+            // Extract the numeric part and increment
+            const lastCodeNumber = parseInt(lastProduct.productCode.substring(2), 10);
+            newProductCode = `PR${String(lastCodeNumber + 1).padStart(4, "0")}`;
         }
-
+ 
         const newProduct = new ProductModel({
-            productCode,
+            productCode: newProductCode,
             brand,
             productName,
             productSubType,
@@ -40,9 +43,9 @@ const createProduct = async (req, res) => {
             image: imagePaths,
             availableProductQuantity,
         });
-
+ 
         await newProduct.save();
-
+ 
         return res.status(201).json({
             success: true,
             message: "Product created successfully",
@@ -56,7 +59,7 @@ const createProduct = async (req, res) => {
         });
     }
 };
-
+ 
 //Get All Products
 const getAllProducts = async (req, res) => {
     try {
@@ -101,7 +104,7 @@ const getAllProducts = async (req, res) => {
  
  
  
-
+ 
 //Get Product by ID
 const getProductById = async (req, res) => {
     try {
@@ -121,14 +124,14 @@ const getProductById = async (req, res) => {
             .json({ success: false, message: "Error fetching product", error });
     }
 };
-
-
+ 
+ 
 // ✅ Update Product
 const updateProduct = async (req, res) => {
     try {
         const { id } = req.params;
         const { productCode } = req.body;
-
+ 
          // Check if productCode already exists in other products
          if (productCode) {
             const existingProduct = await ProductModel.findOne({
@@ -143,7 +146,7 @@ const updateProduct = async (req, res) => {
                 });
             }
         }
-
+ 
         let imagePaths = [];
         if (req.files && req.files.length > 0) {
             imagePaths = req.files.map((file) => file.path);
@@ -178,7 +181,7 @@ const updateProduct = async (req, res) => {
         });
     }
 };
-
+ 
 //
 // add product quantity
 const addProductQuantity = async (req, res) => {
@@ -301,6 +304,7 @@ const removeProductQuantity = async (req, res) => {
         });
     }
 };
+ 
 // Delete a product by ID
 const deleteProductById = async (req, res) => {
     try {
@@ -330,18 +334,18 @@ const deleteProductById = async (req, res) => {
 //get unique brands
 const getBrands = async (req, res) => {
     try {
-        const brands = await ProductModel.distinct("brand");
+        const brands = ProductModel.schema.path('brand').enumValues;
         res.status(200).json({ success: true, brands });
     } catch (error) {
         console.error(error);
         res.status(500).json({ success: false, message: error.message });
     }
 };
-
-// Fetch unique sizes
+ 
+// Get unique sizes
 const getSizes = async (req, res) => {
     try {
-        const sizes = await ProductModel.distinct("size");
+        const sizes = ProductModel.schema.path('size').enumValues;
         res.status(200).json({ success: true, sizes });
     } catch (error) {
         console.error(error);
@@ -349,3 +353,4 @@ const getSizes = async (req, res) => {
     }
 };
 module.exports = {createProduct, getAllProducts, getProductById, updateProduct, deleteProductById, getBrands, getSizes, addProductQuantity, removeProductQuantity}
+
