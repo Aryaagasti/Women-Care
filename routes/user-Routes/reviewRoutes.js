@@ -5,10 +5,11 @@ const {
     addReview,
     getAllReviews,
     getAverageRatings,
-} = require("../../controllers/UserControllers/userReviewController");
+} = require("../../controllers/UserControllers/reviewController");
  
 const router = express.Router();
  
+//✅ User Review Routes
 router.post(
     "/addReview/:productId",
     userValidateToken,

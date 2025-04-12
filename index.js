@@ -5,85 +5,102 @@ const cors = require("cors");
 
 
 
-//Importing All Adim Related Routes
-const adminRoute = require("./routes/SuperAdmin-Routes/Super-AdminRoutes"); 
-const branchRoute = require("./routes/SuperAdmin-Routes/branchRoutes");
-const deliveryBoyRoute = require("./routes/SuperAdmin-Routes/deliveryRoutes");
-const bannerRoute = require("./routes/SuperAdmin-Routes/bannerRoutes");
+//✅ Importing All superAdmin Related Routes
+const superAdminRoutes = require("./routes/SuperAdmin-Routes/Super-AdminRoutes"); 
+const branchRoutes = require("./routes/SuperAdmin-Routes/branchRoutes");
+const deliveryBoyRoutes = require("./routes/SuperAdmin-Routes/deliveryRoutes");
+const bannerRoutes = require("./routes/SuperAdmin-Routes/bannerRoutes");
 const dashboardRoutes = require("./routes/SuperAdmin-Routes/dashboardRoutes");
-const productRoute = require("./routes/SuperAdmin-Routes/productRoutes");
-const testimonialRoute = require("./routes/SuperAdmin-Routes/testimonialRoutes");
-const settingsRoute = require("./routes/SuperAdmin-Routes/SettingRoutes");
-const customerRoute = require("./routes/SuperAdmin-Routes/customerRoutes");
-
+const productRoutes = require("./routes/SuperAdmin-Routes/productRoutes");
+const testimonialRoutes = require("./routes/SuperAdmin-Routes/testimonialRoutes");
+const settingsRoutes = require("./routes/SuperAdmin-Routes/SettingRoutes");
+const customerRoutes = require("./routes/SuperAdmin-Routes/customerRoutes");
+const superAdminOrderRoutes = require("./routes/SuperAdmin-Routes/superAdminOrderRoutes");
+const notificationsRoutes = require("./routes/SuperAdmin-Routes/notficationsRoutes");
 const PaymentRoute =  require("./routes/SuperAdmin-Routes/paymentHistoryRoutes")
 
 
 
 
 
-
-//Importing All Branch Admin Related Routes
-const branchAdminRoute = require("./routes/BranchAdmin-Routes/branchAdminRoutes");
-const branchAdminProductRoute = require("./routes/BranchAdmin-Routes/branchAdminProductRoutes");
-const branchAdminDeliveryBoyRoute = require("./routes/BranchAdmin-Routes/branch-adminDeliveryBoyRoutes");
-const branchAdminPaymentRoute = require("./routes/BranchAdmin-Routes/branchAdminPaymentRoutes");
-const branchSettingsRoutes = require("./routes/BranchAdmin-Routes/BranchAdminSetting");
-const branchAdminCustomerRoutes = require("./routes/BranchAdmin-Routes/branchAdminCustomerRoutes");
+//✅ Importing All Branch Admin Related Routes
+const branchAdminRoutes = require("./routes/BranchAdmin-Routes/branchAdminRoutes");
 const branchDetailsRoutes = require("./routes/BranchAdmin-Routes/branchDetailsRoutes");
-const branchOrderRoutes = require("./routes/BranchAdmin-Routes/branchAdminOrderRoutes");
+const branchAdminProductRoutes = require("./routes/BranchAdmin-Routes/branchAdminProductRoutes");
+const branchAdminDeliveryBoyRoutes = require("./routes/BranchAdmin-Routes/branch-adminDeliveryBoyRoutes");
+const branchAdminPaymentRoute = require("./routes/BranchAdmin-Routes/branchAdminPaymentRoutes");
+const branchSettingsRoutes = require("./routes/BranchAdmin-Routes/branchSettingsRoutes");
+const branchOrderRoutes = require("./routes/BranchAdmin-Routes/branch-adminOrderRoutes");
+const branchAdminCustomerRoutes = require("./routes/BranchAdmin-Routes/branchAdminCustomerRoutes");
+const branchNotificationsRoutes = require("./routes/BranchAdmin-Routes/branchAdminNotificationRoutes");
 
-//Importing All User Related Routes
-const userRoute = require("./routes/user-Routes/useRoutes");
-const userReviewRoute =  require("./routes/user-Routes/userReviewRoutes")
+
+
+
+
+//✅ Importing All User Related Routes
+const userRoutes = require("./routes/user-Routes/useRoutes");
 const userProductRoutes = require("./routes/user-Routes/userProductRoutes");
-const cartRoutes = require("./routes/user-Routes/userCartRoutes");
-const orderRoutes = require("./routes/user-Routes/OrdersRoutes");
-const contactUsRoutes = require("./routes/user-Routes/userContactUsRoutes");
+const cartRoutes = require("./routes/user-Routes/CartRoutes");
+const userOrderRoutes = require("./routes/user-Routes/orderNow-Routes");
+const contactRoutes = require("./routes/user-Routes/conatctUs-Routes");
+const reviewRoutes = require("./routes/user-Routes/reviewRoutes");
 const userSettingsRoutes = require("./routes/user-Routes/userSettingsRoutes");
-const trackingOrderRoutes =  require("./routes/user-Routes/userTrackOrderRoutes")
+const userNotificationsRoutes = require("./routes/user-Routes/userNotficationsRoutes");
+
+
+//✅ Importing All Delivery boy Related Routes
+const deliveryBoyAuthRotes = require("./routes/DeliveryBoy-Routes/deliveryBoyRoutes");
+
 
 const app = express();
 
-// Middleware
+//✅ Middleware
 app.use(express.json());
 app.use(cors());
 
-// Connect to Database
+//✅ Connect to Database
 connectDB();
 
 
-//Super Admin  Routes
-app.use("/api/superAdmin",adminRoute);
-app.use("/api/branch", branchRoute);
-app.use("/api/deliveryBoy", deliveryBoyRoute);
-app.use("/api/banner", bannerRoute);
-app.use("/api/products", productRoute);
-app.use("/api/testimonial", testimonialRoute);
-app.use("/api/customer", customerRoute);
+//✅ Super Admin  Routes
+app.use("/api/superAdmin",superAdminRoutes);
+app.use("/api/branch", branchRoutes);
+app.use("/api/deliveryBoy", deliveryBoyRoutes);
+app.use("/api/banner", bannerRoutes);
+app.use("/api/products", productRoutes);
+app.use("/api/testimonial", testimonialRoutes);
+app.use("/api/customer", customerRoutes);
+app.use("/api/order", superAdminOrderRoutes);
+app.use("/api/dashboard", dashboardRoutes);
+app.use("/api/settings", settingsRoutes);
 app.use("/api/superAdminPayment",PaymentRoute);
-app.use("/api/settings",settingsRoute);
-app.use("/api/dashboard",dashboardRoutes);
+app.use("/api/notification", notificationsRoutes);
 
-//Branch Admin Routes
-app.use("/api/branchAdmin", branchAdminRoute);
-app.use("/api/branchAdminProduct", branchAdminProductRoute);
-app.use("/api/branchAdminDeliveryBoy", branchAdminDeliveryBoyRoute);
-app.use("/api/branchAdminPayment", branchAdminPaymentRoute);
-app.use("/api/branchSettings", branchSettingsRoutes);
-app.use("/api/branchAdminCustomer", branchAdminCustomerRoutes);
+//✅ Branch Admin Routes
+app.use("/api/branchAdmin", branchAdminRoutes);
 app.use("/api/branchAdmin", branchDetailsRoutes);
+app.use("/api/branchAdminProduct", branchAdminProductRoutes);
+app.use("/api/branchAdminDeliveryBoy", branchAdminDeliveryBoyRoutes);
+app.use("/api/branchSettings", branchSettingsRoutes);
 app.use("/api/branchOrder", branchOrderRoutes);
+app.use("/api/branchAdminPayment", branchAdminPaymentRoute);
+app.use("/api/branchCustomer", branchAdminCustomerRoutes);
+app.use("/api/branchAdmin/notification", branchNotificationsRoutes);
 
-//User Routes
-app.use("/api/user", userRoute);
-app.use("/api/userReview", userReviewRoute);
-app.use("/api/order", orderRoutes);
-app.use("/api/userProduct", userProductRoutes);
-app.use("/api/cart", cartRoutes);
-app.use("/api/contactUs", contactUsRoutes);
-app.use("/api/userSettings", userSettingsRoutes);
-app.use("/api/trackingOrder",trackingOrderRoutes)
+//✅ User Routes
+app.use("/api/user", userRoutes);
+app.use("/api/user/Product", userProductRoutes);
+app.use("/api/user", cartRoutes);
+app.use("/api/user", userOrderRoutes);
+app.use("/api/user", contactRoutes);
+app.use("/api/user/review", reviewRoutes);
+app.use("/api/user/settings", userSettingsRoutes);
+app.use("/api/user/notification", userNotificationsRoutes);
+
+//✅ Delivery Boy Routes
+app.use("/api/deliveryBoy", deliveryBoyAuthRotes);
+
 
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));

@@ -1,6 +1,8 @@
 const DeliveryBoyModel = require("../../models/SuperAdminModels/DeliveryBoy");
+const Order = require("../../models/UserModels/orderNow");
 const mongoose = require("mongoose");
  
+//✅ Get All Delivery Boys
 const getAllDeliveryBoys = async (req, res) => {
     try {
         let { page = 1, limit = 10, search = "", sortOrder } = req.query;
@@ -46,10 +48,11 @@ const getAllDeliveryBoys = async (req, res) => {
         });
     } catch (error) {
         console.error(error);
-        return res.status(500).json({ success: false, message: error.message });
-    }
+        return res.status(500).json({ success: false, message: error.message });
+    }
 };
  
+//✅ Get Delivery Boy By ID
 const getDeliveryBoyById = async (req, res) => {
     try {
       const { id } = req.params;
@@ -73,7 +76,7 @@ const getDeliveryBoyById = async (req, res) => {
           message: "Delivery boy not found.",
         });
       }
- 
+
   
      
       const previousOrder = await Order.find({ 
@@ -132,5 +135,110 @@ const getDeliveryBoyById = async (req, res) => {
       });
     }
   };
- 
-module.exports = { getAllDeliveryBoys, getDeliveryBoyById };
+  
+
+
+
+//✅ Get Order Details By Delivery Boy ID
+const getOrderDetailsByDeliveryBoyId = async (req, res) => {
+  try {
+      const { id } = req.params;
+      let { page = 1, limit = 10, fromDate, toDate } = req.query;
+
+      page = parseInt(page);
+      limit = parseInt(limit);
+
+      if (!mongoose.Types.ObjectId.isValid(id)) {
+          return res.status(400).json({ success: false, message: "Invalid delivery boy ID." });
+      }
+
+      // Build filter object
+      const filter = { deliveryBoy: id };
+      if (fromDate && toDate) {
+          const parsedFromDate = parseDate(fromDate);
+          const parsedToDate = parseDate(toDate);
+          filter.orderDate = {
+              $gte: parsedFromDate,
+              $lte: new Date(parsedToDate.setHours(23, 59, 59, 999))
+          };
+      }
+
+      // Total orders count
+      const totalOrders = await Order.countDocuments(filter);
+
+      // Fetch orders with pagination
+      const orders = await Order.find(filter)
+          .sort({ createdAt: -1 })
+          .skip((page - 1) * limit)
+          .limit(limit)
+          .populate({
+              path: "items.product",
+              model: "Products",
+              select: "productName"
+          });
+
+      // Flatten and format response
+      const formattedOrders = [];
+
+      orders.forEach(order => {
+          const orderDate = new Date(order.orderDate).toLocaleDateString('en-IN');
+
+          const deliveryAddress = [
+              order.deliveryAddress?.name,
+              order.deliveryAddress?.street,
+              order.deliveryAddress?.city,
+              order.deliveryAddress?.zipCode
+          ].filter(Boolean).join(', ');
+
+          order.items.forEach(item => {
+              formattedOrders.push({
+                  Date: orderDate,
+                  productName: item.product?.productName || "Unknown Product",
+                  quantity: item.quantity,
+                  price: item.price,
+                  totalPrice: item.quantity * item.price,
+                  deliveryAddress: deliveryAddress
+              });
+          });
+      });
+
+      const totalPages = Math.ceil(totalOrders / limit);
+      const hasPrevious = page > 1;
+      const hasNext = page < totalPages;
+
+      return res.status(200).json({
+          success: true,
+          totalPages,
+          currentPage: page,
+          previous: hasPrevious,
+          next: hasNext,
+          orders: formattedOrders
+      });
+
+  } catch (error) {
+      console.error(error);
+      return res.status(500).json({ success: false, message: error.message });
+  }
+};
+  
+//✅ DropDown Api's For Delivery Boy
+const getDeliveryBoyDropdown = async (req, res) => {
+  try {
+    const deliveryBoys = await DeliveryBoyModel.find().select("fullName -_id");
+
+    const names = deliveryBoys.map((boy) => boy.fullName);
+
+    return res.status(200).json({
+      success: true,
+      deliveryBoys: names,
+    });
+  } catch (error) {
+    return res.status(500).json({
+      success: false,
+      message: "Failed to fetch delivery boy dropdown",
+      error: error.message,
+    });
+  }
+};
+
+module.exports = { getAllDeliveryBoys, getDeliveryBoyById, getOrderDetailsByDeliveryBoyId, getDeliveryBoyDropdown };

@@ -12,7 +12,7 @@ const statusEnum = [
   "Out for Delivery",
 ];
 const mongoose = require("mongoose");
- 
+
 const orderSchema = new mongoose.Schema(
   {
     user: {
@@ -39,11 +39,7 @@ const orderSchema = new mongoose.Schema(
       type: Number,
       required: true,
     },
-    deliveryCharges: {
-      type: Number,
-      default: 0,
-    },
- 
+    
     items: [
       {
         product: {
@@ -55,6 +51,13 @@ const orderSchema = new mongoose.Schema(
         price: { type: Number, required: true },
       },
     ],
+    orderSummary: {
+      productImage: { type: String },
+      items: { type: Number },
+      itemTotal: { type: Number },
+      deliveryCharges: { type: Number },
+      orderTotal: { type: Number },
+    },
     status: {
       type: String,
       enum: statusEnum,
@@ -92,13 +95,13 @@ const orderSchema = new mongoose.Schema(
       type: mongoose.Schema.Types.ObjectId,
       ref: "Branches",
     },
- 
+
    
     
   },
   { timestamps: true }
 );
- 
+
 const Order = mongoose.model("OrderCart", orderSchema);
- 
+
 module.exports = Order;

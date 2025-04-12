@@ -1,6 +1,7 @@
 const branchModel = require("../../models/SuperAdminModels/branch");
 const mongoose = require("mongoose");
 
+//✅ Get Branch Details
 const getBranchDetails = async (req, res) => {
     try {
         const { branchId } = req.params;
@@ -24,7 +25,7 @@ const getBranchDetails = async (req, res) => {
                 Password: branch.password,
                 PhoneNumber: branch.phoneNumber,
                 Address: branch.fullAddress,
-                ServicePinCode: branch.servicePinCode.join(", ")
+                ServicePinCode: branch.servicePinCode.join(", "),
             }
         });
     } catch (error) {
@@ -33,4 +34,4 @@ const getBranchDetails = async (req, res) => {
     }
 };
 
-module.exports = { getBranchDetails };
+module.exports = { getBranchDetails };

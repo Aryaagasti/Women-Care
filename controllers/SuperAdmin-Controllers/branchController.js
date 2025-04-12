@@ -3,12 +3,13 @@ const DeliveryBoyModel = require("../../models/SuperAdminModels/DeliveryBoy");
 const ProductModel = require("../../models/SuperAdminModels/Product");
 const bcrypt = require("bcryptjs");
 
-//Create Branch
+
+//✅ Create Branch
 const createBranch = async (req, res) => {
-  try {
-    const {
-      branchName,
-      branchManagerName,
+    try {
+        const {
+            branchName,
+            branchManagerName,
       email,
       password,
       phoneNumber,
@@ -54,7 +55,7 @@ const createBranch = async (req, res) => {
   }
 };
 
-//Get all Branch
+//✅ Get all Branch
 const getAllBranches = async (req, res) => {
   try {
     let { page, limit, searchQuery, sortBy, sortOrder } = req.query;
@@ -117,36 +118,37 @@ const getAllBranches = async (req, res) => {
       message: "Internal Server Error",
       success: false,
       error: error.message
-    });
-  }
+    });
+  }
 };
 
-//get Branch by id
+
+//✅ Get Branch by id
 const getBranchById = async (req, res) => {
   try {
     const { id } = req.params;
- 
+
     // Step 1: Find the branch
     const rawbranch = await branchModel.findById(id)
     .select({ phoneNumber: 1, servicePinCode: 1, fullAddress: 1, _id: 0 })
     .lean();
- 
+
     if (!rawbranch) {
       return res.status(404).json({ message: "Branch not found", success: false });
     }
- 
+
     const branch = {
       ...rawbranch,
       servicePinCode: Array.isArray(rawbranch.servicePinCode)
         ? rawbranch.servicePinCode.join(", ")
         : rawbranch.servicePinCode,
     };
- 
+
     // Step 2: Get delivery boys
     const deliveryBoys = await DeliveryBoyModel.find({})
       .select("userId fullName email phoneNumber address")
       .lean();
- 
+
     const formattedDeliveryBoys = deliveryBoys.map((boy) => ({
       userId: boy.userId,
       deliveryBoyName: boy.fullName,
@@ -154,12 +156,12 @@ const getBranchById = async (req, res) => {
       PhoneNumber: boy.phoneNumber,
       Address: boy.address,
     }));
- 
+
     // Step 3: Get products
     const products = await ProductModel.find({})
       .select("productCode brand productName size availableProductQuantity price")
       .lean();
- 
+
     const formattedProducts = products.map((product) => ({
       id: product._id,
       productCode: product.productCode,
@@ -169,7 +171,7 @@ const getBranchById = async (req, res) => {
       availableQuantity: product.availableProductQuantity,
       price: product.price,
     }));
- 
+
     // Step 4: Return response
     return res.status(200).json({
       success: true,
@@ -178,7 +180,7 @@ const getBranchById = async (req, res) => {
       availableDeliveryBoys: formattedDeliveryBoys,
       availableProductDetails: formattedProducts,
     });
- 
+
   } catch (error) {
     console.error(error);
     return res.status(500).json({
@@ -188,6 +190,7 @@ const getBranchById = async (req, res) => {
     });
   }
 };
+
 
 
 

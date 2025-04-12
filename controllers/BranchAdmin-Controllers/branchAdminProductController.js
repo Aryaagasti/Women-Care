@@ -1,16 +1,16 @@
 const ProductModel = require("../../models/SuperAdminModels/Product");
 const mongoose = require("mongoose");
  
-// Get all products with pagination
+//✅ Get all products with pagination
 const getAllProducts = async (req, res) => {
     try {
         let { page = 1, limit = 10, search = "" } = req.query;
- 
+
         // Ensure page and limit are positive integers
         page = Math.max(1, parseInt(page));
         limit = Math.max(1, parseInt(limit));
         search = search.trim();
- 
+
         // Search filter using regex
         const searchFilter = {
             $or: [
@@ -19,17 +19,17 @@ const getAllProducts = async (req, res) => {
                 { productSubType: { $regex: search, $options: "i" } },
             ],
         };
- 
+
         const totalProducts = await ProductModel.countDocuments(searchFilter);
- 
+
         const products = await ProductModel.find(searchFilter)
             .skip((page - 1) * limit)
             .limit(limit)
             .select("image productName brand availableProductQuantity") // Fetch only needed fields
             .lean();
- 
+
         const totalPages = Math.ceil(totalProducts / limit);
- 
+
         const formattedProducts = products.map((product) => ({
             id: product._id,
             image: product.image?.[0] || null,
@@ -37,7 +37,7 @@ const getAllProducts = async (req, res) => {
             brand: product.brand,
             availableProductQuantity: product.availableProductQuantity,
         }));
- 
+
         res.status(200).json({
             success: true,
             pagination: {
@@ -55,25 +55,25 @@ const getAllProducts = async (req, res) => {
     }
 };
  
-// Get a single product by ID
+//✅ Get a single product by ID
 const getProductById = async (req, res) => {
     try {
         const { id } = req.params;
- 
+
         if (!mongoose.Types.ObjectId.isValid(id)) {
             return res
                 .status(400)
                 .json({ success: false, message: "Invalid product ID." });
         }
- 
+
         const product = await ProductModel.findById(id);
- 
+
         if (!product) {
             return res
                 .status(404)
                 .json({ success: false, message: "Product not found" });
         }
- 
+
         const formattedProduct = {
             id: product._id,
             ProductName: product.productName,
@@ -85,7 +85,7 @@ const getProductById = async (req, res) => {
             SubType: product.productSubType,
             ProductDescription:product.productDescription
         };
- 
+
        return res.status(200).json({ success: true, product: formattedProduct });
     } catch (error) {
         console.log(error);
@@ -94,9 +94,8 @@ const getProductById = async (req, res) => {
             .json({ success: false, message: "Error fetching product", error });
     }
 };
- 
+
  
 module.exports = { getAllProducts, getProductById };
  
  
-

@@ -5,14 +5,14 @@ const {
     resendOtp,
     getUser,
     updateUser,
-    logout
+    logout,
 } = require("../../controllers/UserControllers/userController");
 const { userValidateToken } = require("../../middlewares/userAuthMiddleware");
 const { upload } = require("../../config/cloudinary");
  
 const router = express.Router();
  
-// User Routes
+//✅ User Routes
 router.post("/login", login);
 router.post("/verify-otp", verifyOtp);
 router.post("/resend-otp", resendOtp);

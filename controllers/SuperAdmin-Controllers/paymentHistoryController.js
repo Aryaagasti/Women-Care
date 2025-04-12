@@ -1,4 +1,4 @@
-const PaymentHistory = require("../../models/SuperAdminModels/paymentHistory");
+const PaymentHistory = require("../../models/SuperAdminModels/DeliveryBoy");
 const DeliveryBoy = require("../../models/SuperAdminModels/DeliveryBoy")
 const User =  require("../../models/UserModels/User")
 

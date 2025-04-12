@@ -1,8 +1,11 @@
-const ContactUs = require("../../models/UserModels/ContactUs");
  
+const ContactUs = require("../../models/UserModels/Contact-Us");
+ 
+//✅ Submit Contact Us
 const submitContactUs = async (req, res) => {
   try {
     const { email, phoneNumber, suggestions } = req.body;
+    console.log(req.body);
  
     if (!email || !phoneNumber || !suggestions) {
       return res.status(400).json({ message: "All fields are required" });

@@ -1,5 +1,6 @@
 const { Schema, model } = require("mongoose");
-const mongoose = require('mongoose');
+const bcrypt = require("bcryptjs");
+
 const deliveryBoySchema = new Schema(
     {
         fullName: {
@@ -17,7 +18,7 @@ const deliveryBoySchema = new Schema(
             match: [/^\S+@\S+\.\S+$/, "Invalid email format"],
         },
         phoneNumber: {
-            type: Number,
+            type: String, // Changed to String to handle scenarios like country codes
             required: [true, "Phone number is required"],
             unique: true,
             validate: {
@@ -49,18 +50,42 @@ const deliveryBoySchema = new Schema(
             required: [true, "Branch is required"],
             trim: true,
         },
-        branchInfo: {
-            type: mongoose.Schema.Types.ObjectId,
-            ref: "Branches",
-            required: false
-          },
         image: {
-            type: String,
+            type: String, // URL for the profile image
             trim: true,
+        },
+        branchInfo: {
+            type: Schema.Types.ObjectId,
+            ref: "Branches",
+            required: false,
+        },
+        isActive: {
+            type: Boolean,
+            default: true, // Default active status
         },
     },
     { timestamps: true }
 );
- 
+
+// Pre-save hook for hashing passwords
+deliveryBoySchema.pre("save", async function (next) {
+    if (!this.isModified("password")) {
+        return next();
+    }
+    const salt = await bcrypt.genSalt(10);
+    this.password = await bcrypt.hash(this.password, salt);
+    next();
+});
+
+// Method for password comparison
+deliveryBoySchema.methods.matchPassword = async function (enteredPassword) {
+    return bcrypt.compare(enteredPassword, this.password);
+};
+
+// Virtual field to generate full details
+deliveryBoySchema.virtual("fullDetails").get(function () {
+    return `${this.fullName} (${this.userId}) - ${this.email}`;
+});
+
 const DeliveryBoyModel = model("DeliveryBoy", deliveryBoySchema);
 module.exports = DeliveryBoyModel;

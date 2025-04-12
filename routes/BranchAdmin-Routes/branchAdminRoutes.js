@@ -1,22 +1,23 @@
 const express = require('express');
 const {register,login,forgotPassword,verifyOtp,resetPassword,logout, getBranchAdminProfile, updateBranchAdminProfile, changeAdminPassAtProfile} =  require('../../controllers/BranchAdmin-Controllers/branchAdminController')
 const router = express.Router();
-const branchAdminAuthMiddleware =  require('../../middlewares/branchMiddleware')
 const { upload } = require('../../config/cloudinary');
+const branchAdminAuthMiddleware = require('../../middlewares/branchMiddleware');
  
+//✅ Branch Admin Routes
 router.post('/register', upload.fields([
     { name: "profileImage", maxCount: 1 },]) ,register);
-router.post('/login',login);
+router.post('/login',  login);
 router.post('/forgot-password',forgotPassword);
 router.post('/verify-otp',verifyOtp);
-router.put('/updateProfile/:id', upload.fields([
+router.put('/updateProfile/:id', branchAdminAuthMiddleware, upload.fields([
     { name: "profileImage", maxCount: 1 },
   ]), updateBranchAdminProfile);
 router.post('/reset-password',resetPassword);
-router.get('/logout',branchAdminAuthMiddleware,logout);
-router.get('/getProfile/:id', branchAdminAuthMiddleware ,getBranchAdminProfile);
+router.post('/logout',logout);
+router.get('/getProfile/:id', branchAdminAuthMiddleware, getBranchAdminProfile);
 
 
-router.put('/change-password/:id',branchAdminAuthMiddleware ,changeAdminPassAtProfile);
+router.put('/change-password/:id', branchAdminAuthMiddleware, changeAdminPassAtProfile);
  
 module.exports = router;
