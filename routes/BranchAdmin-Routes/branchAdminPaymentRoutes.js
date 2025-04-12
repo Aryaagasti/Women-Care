@@ -1,7 +1,7 @@
 const express = require("express");
 const {
  getPaymentHistory, viewPaymentHistory,createPayment,getPaymentModes
-} = require("../../controllers/BranchAdmin-Controllers/branchAdminPaymentController");
+} = require("../../controllers/branchAdmin-Controllers/branchAdminPaymentController");
 
 const router = express.Router();
 
