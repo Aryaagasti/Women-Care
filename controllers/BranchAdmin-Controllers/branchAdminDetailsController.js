@@ -1,4 +1,4 @@
-const branchModel = require("../../models/SuperAdminModels/branch");
+const branchModel =  require("../../models/SuperAdminModels/branch")
 const mongoose = require("mongoose");
 
 //✅ Get Branch Details
