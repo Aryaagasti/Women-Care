@@ -25,7 +25,7 @@ const PaymentRoute =  require("./routes/SuperAdmin-Routes/paymentHistoryRoutes")
 
 //✅ Importing All Branch Admin Related Routes
 const branchAdminRoutes = require("./routes/BranchAdmin-Routes/branchAdminRoutes");
-const branchDetailsRoutes = require("./routes/BranchAdmin-Routes/branchDetailsRoutes");
+const branchDetailsRoutes = require("./routes/BranchAdmin-Routes/branchAdminDetailsRoutes");
 const branchAdminProductRoutes = require("./routes/BranchAdmin-Routes/branchAdminProductRoutes");
 const branchAdminDeliveryBoyRoutes = require("./routes/BranchAdmin-Routes/branch-adminDeliveryBoyRoutes");
 const branchAdminPaymentRoute = require("./routes/BranchAdmin-Routes/branchAdminPaymentRoutes");
