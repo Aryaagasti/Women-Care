@@ -1,10 +1,10 @@
 const express = require('express');
 const router = express.Router();
 
-const branchAdminDetails = require('../../controllers/branchAdmin-Controllers/branchAdminDetailsController');
+const {getBranchDetails} = require('../../controllers/branchAdmin-Controllers/branchAdminDetailsController');
 
 
 //✅ Branch Details Routes
-router.get("/branch/:branchId", branchAdminDetails.getBranchDetails);
+router.get("/branch/:branchId", getBranchDetails);
 
 module.exports = router;
